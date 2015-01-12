@@ -5,7 +5,7 @@ var exec = require('cordova/exec')
       }
       , compressVideo: function(originalSrc, successCallback, failCallback) {
         exec(successCallback, failCallback, 'MediaCompressor', 'compressVideo', [originalSrc]);
-      };
+      }
     };
 
 module.exports = _interface;
