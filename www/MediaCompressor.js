@@ -1,10 +1,16 @@
 var exec = require('cordova/exec')
     , _interface = {
       compressAudio: function(originalSrc, successCallback, failCallback) {
-        exec(successCallback, failCallback, 'MediaCompressor', 'compressAudio', [originalSrc]);
+          if (typeof originalSrc === 'string' && originalSrc !== '') {
+              originalSrc = originalSrc.replace('file://','');
+              exec(successCallback, failCallback, 'MediaCompressor', 'compressAudio', [originalSrc]);
+          }
       }
       , compressVideo: function(originalSrc, successCallback, failCallback) {
-        exec(successCallback, failCallback, 'MediaCompressor', 'compressVideo', [originalSrc]);
+            if (typeof originalSrc === 'string' && originalSrc !== '') {
+                originalSrc = originalSrc.replace('file://','');
+                exec(successCallback, failCallback, 'MediaCompressor', 'compressVideo', [originalSrc]);
+            }
       }
     };
 
