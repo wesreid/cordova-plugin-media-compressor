@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0" id="org.apache.cordova.mediacompressor" version="1.0.0">
+  <engines>
+    <engine name="cordova" version=">=3.0.0" />
+  </engines>
+  <name>AudioEncode</name>
+  <description>Plugin to compress audio and video.</description>
+  <author>Wes Reid</author>
+  <keywords>iOS Android Audio Video Recording Encoding Compression</keywords>
+  <license>MIT</license>
+
+  <!-- JavaScript interface -->
+  <js-module src="www/MediaCompressor.js" name="MediaCompressor" target="www/MediaCompressor.js">
+    <clobbers target="window.mediaCompressor" />
+  </js-module>
+
+  <!-- ios -->
+  <platform name="ios">
+    <config-file target="config.xml" parent="plugins">
+      <feature name="MediaCompressor">
+        <param name="ios-package" value="MediaCompressor"/>
+        <param name="onload" value="true" />
+      </feature>
+      <plugin name="MediaCompressor" value="MediaCompressor"/>
+    </config-file>
+    <header-file src="src/ios/MediaCompressor.h" />
+    <source-file src="src/ios/MediaCompressor.m" />
+  </platform>
+</plugin>
