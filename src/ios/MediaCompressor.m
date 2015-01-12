@@ -1,4 +1,4 @@
-#import "AudioEncode.h"
+#import "MediaCompressor.h"
 
 @implementation MediaCompressor
 

@@ -3,7 +3,7 @@
   <engines>
     <engine name="cordova" version=">=3.0.0" />
   </engines>
-  <name>AudioEncode</name>
+  <name>MediaCompressor</name>
   <description>Plugin to compress audio and video.</description>
   <author>Wes Reid</author>
   <keywords>iOS Android Audio Video Recording Encoding Compression</keywords>
