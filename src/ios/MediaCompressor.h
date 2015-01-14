@@ -10,4 +10,5 @@
 
 - (void)compressAudio:(CDVInvokedUrlCommand *)command;
 - (void)compressVideo:(CDVInvokedUrlCommand *)command;
+- (void)getVideoFrames:(CDVInvokedUrlCommand *)command;
 @end

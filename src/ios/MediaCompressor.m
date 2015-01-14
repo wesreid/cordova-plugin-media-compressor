@@ -53,22 +53,22 @@
 {
     self.callbackId = command.callbackId;
     NSString* videoPath = [command.arguments objectAtIndex:0];
-
+    
     NSURL* videoURL = [NSURL fileURLWithPath:videoPath];
     AVURLAsset* videoAsset = [[AVURLAsset alloc] initWithURL:videoURL options:nil];
     AVAssetExportSession* exportSession = [[AVAssetExportSession alloc] initWithAsset:videoAsset presetName:AVAssetExportPreset640x480];
-
+    
     NSURL* destinationURL = [videoURL URLByAppendingPathExtension:@"mp4"];
-
+    
     exportSession.outputURL = destinationURL;
     exportSession.outputFileType = AVFileTypeMPEG4;
-
+    
     NSLog(@"Arg URL=%@",videoPath);
     NSLog(@"video URL=%@",videoURL);
     NSLog(@"Destination URL=%@",destinationURL);
-
+    
     [exportSession exportAsynchronouslyWithCompletionHandler:^{
-
+        
         if (AVAssetExportSessionStatusCompleted == exportSession.status) {
             NSLog(@"AVAssetExportSessionStatusCompleted");
             [self performSelectorOnMainThread:@selector(doSuccessCallback:) withObject:[exportSession.outputURL path] waitUntilDone:NO];
@@ -78,20 +78,68 @@
             // make sure and handle this case appropriately
             NSLog(@"AVAssetExportSessionStatusFailed");
             NSLog(@"error: %@", exportSession.error);
-
+            
             [self performSelectorOnMainThread:@selector(doFailCallback:) withObject:[NSString stringWithFormat:@"%li", exportSession.status] waitUntilDone:NO];
-
+            
         } else {
             NSLog(@"Export Session Status: %ld", exportSession.status);
         }
-
-
+        
+        
         NSFileManager *fileMgr = [NSFileManager defaultManager];
         NSError *error;
         if ([fileMgr removeItemAtPath:videoPath error:&error] != YES) {
             NSLog(@"Unable to delete file: %@", [error localizedDescription]);
         }
     }];
+}
+
+- (void)getVideoFrames:(CDVInvokedUrlCommand *)command
+{
+    self.callbackId = command.callbackId;
+    NSString* videoPath = [command.arguments objectAtIndex:0];
+    
+    NSURL* videoURL = [NSURL fileURLWithPath:videoPath];
+    AVURLAsset* videoAsset = [[AVURLAsset alloc] initWithURL:videoURL options:nil];
+    __block NSMutableArray* times = [[NSMutableArray alloc] init];
+    for (float i = 0; i<CMTimeGetSeconds(videoAsset.duration); i+=0.1) {
+        [times addObject:[NSValue valueWithCMTime:CMTimeMakeWithSeconds(i, 600)]];
+    }
+    __block int imageCounter = 0, iterationCount = 0;
+    __block NSMutableArray* savedImages = [[NSMutableArray alloc] init];
+    
+    AVAssetImageGenerator* imageGenerator = [[AVAssetImageGenerator alloc] initWithAsset:videoAsset];
+    [imageGenerator generateCGImagesAsynchronouslyForTimes:times completionHandler:^(CMTime requestedTime, CGImageRef image, CMTime actualTime, AVAssetImageGeneratorResult result, NSError *error) {
+        iterationCount++;
+        if (result == AVAssetImageGeneratorSucceeded) {
+            NSString* targetDir = [videoPath stringByReplacingOccurrencesOfString:[videoURL lastPathComponent] withString:@""];
+            NSString *savedImagePath = [targetDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@-%03d.jpg",[videoURL lastPathComponent],++imageCounter]];
+            NSData *imageData = UIImagePNGRepresentation((__bridge UIImage *)(image));
+            [imageData writeToFile:savedImagePath atomically:NO];
+        }
+        
+        if (result == AVAssetImageGeneratorFailed) {
+            
+            NSLog(@"Failed with error: %@", [error localizedDescription]);
+        }
+        
+        if (result == AVAssetImageGeneratorCancelled) {
+            
+            NSLog(@"Canceled");
+            
+        }
+        if (iterationCount >= [times count]) {
+            [self performSelectorOnMainThread:@selector(doSuccessImageFramesCallback:) withObject:savedImages waitUntilDone:NO];
+        }
+    }];
+}
+
+-(void) doSuccessImageFramesCallback:(NSArray*)paths {
+    NSLog(@"doing success callback");
+    
+    CDVPluginResult* pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:paths];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
 }
 
 -(void) doSuccessCallback:(NSString*)path {
