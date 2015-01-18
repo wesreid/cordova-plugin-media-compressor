@@ -102,7 +102,7 @@
     NSURL* videoURL = [NSURL fileURLWithPath:videoPath];
     AVURLAsset* videoAsset = [[AVURLAsset alloc] initWithURL:videoURL options:nil];
     __block NSMutableArray* times = [[NSMutableArray alloc] init];
-    for (float i = 0; i<CMTimeGetSeconds(videoAsset.duration); i+=0.1) {
+    for (float i = 0; i<CMTimeGetSeconds(videoAsset.duration); i++) {
         [times addObject:[NSValue valueWithCMTime:CMTimeMakeWithSeconds(i, 600)]];
     }
     __block int imageCounter = 0, iterationCount = 0;
@@ -113,8 +113,10 @@
         iterationCount++;
         if (result == AVAssetImageGeneratorSucceeded) {
             NSString* targetDir = [videoPath stringByReplacingOccurrencesOfString:[videoURL lastPathComponent] withString:@""];
-            NSString *savedImagePath = [targetDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@-%03d.jpg",[videoURL lastPathComponent],++imageCounter]];
-            NSData *imageData = UIImagePNGRepresentation((__bridge UIImage *)(image));
+            NSString *savedImagePath = [targetDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@-%03d.png",[videoURL lastPathComponent],++imageCounter]];
+            [savedImages addObject:savedImagePath];
+            UIImage* imgOut = [[UIImage alloc] initWithCGImage:image];
+            NSData *imageData = UIImagePNGRepresentation(imgOut);
             [imageData writeToFile:savedImagePath atomically:NO];
         }
         
