@@ -21,6 +21,10 @@
     NSLog(@"Arg URL=%@",audioPath);
     NSLog(@"Audio URL=%@",audioURL);
     NSLog(@"Destination URL=%@",destinationURL);
+    
+    NSFileManager *fileMgr = [NSFileManager defaultManager];
+    // remove file
+    [fileMgr removeItemAtURL:destinationURL error:nil];
 
     [exportSession exportAsynchronouslyWithCompletionHandler:^{
 
@@ -41,7 +45,6 @@
         }
 
 
-        NSFileManager *fileMgr = [NSFileManager defaultManager];
         NSError *error;
         if ([fileMgr removeItemAtPath:audioPath error:&error] != YES) {
             NSLog(@"Unable to delete file: %@", [error localizedDescription]);
@@ -67,6 +70,10 @@
     NSLog(@"video URL=%@",videoURL);
     NSLog(@"Destination URL=%@",destinationURL);
     
+    NSFileManager *fileMgr = [NSFileManager defaultManager];
+    // remove file
+    [fileMgr removeItemAtURL:destinationURL error:nil];
+    
     [exportSession exportAsynchronouslyWithCompletionHandler:^{
         
         if (AVAssetExportSessionStatusCompleted == exportSession.status) {
@@ -86,7 +93,6 @@
         }
         
         
-        NSFileManager *fileMgr = [NSFileManager defaultManager];
         NSError *error;
         if ([fileMgr removeItemAtPath:videoPath error:&error] != YES) {
             NSLog(@"Unable to delete file: %@", [error localizedDescription]);
